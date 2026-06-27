@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบยื่นใบลาพักผ่อน - HR Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-lg border border-gray-100">
+        
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-bold text-gray-850 text-indigo-600">ระบบยื่นคำขอลางาน</h2>
+            <p class="text-sm text-gray-500 mt-1">กรุณากรอกข้อมูลการลาให้ครบถ้วนเพื่อส่งให้หัวหน้างานอนุมัติ</p>
+        </div>
+
+        <form id="leaveForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-gray-750 mb-2">ประเภทการลา <span class="text-red-500">*</span></label>
+                <select id="leaveType" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    <option value="">-- เลือกประเภทการลา --</option>
+                    <option value="sick">ลาป่วย (Sick Leave)</option>
+                    <option value="personal">ลากิจ (Personal Leave)</option>
+                    <option value="vacation">ลาพักร้อน (Vacation Leave)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-750 mb-2">วันที่เริ่ม <span class="text-red-500">*</span></label>
+                    <input type="date" id="startDate" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-750 mb-2">สิ้นสุดวันที่ <span class="text-red-500">*</span></label>
+                    <input type="date" id="endDate" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                </div>
+            </div>
+
+            <div id="daysCountBox" class="hidden bg-indigo-50 p-3 rounded-lg text-sm text-indigo-700 font-medium text-center">
+                จำนวนวันลาทั้งหมด: <span id="totalDays" class="text-lg font-bold">0</span> วัน
+            </div>
+
+            <div id="medicalCertWrapper" class="hidden transition-all duration-300">
+                <label class="block text-sm font-semibold text-gray-750 mb-2">แนบใบรับรองแพทย์ (กรณีลาเกิน 2 วัน)</label>
+                <input type="file" id="medicalCert" accept="image/*,.pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-750 mb-2">เหตุผลการลา <span class="text-red-500">*</span></label>
+                <textarea id="reason" rows="3" required placeholder="ระบุเหตุผลความจำเป็น..." class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                ส่งคำขอลางาน
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const leaveType = document.getElementById('leaveType');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const medicalCertWrapper = document.getElementById('medicalCertWrapper');
+        const daysCountBox = document.getElementById('daysCountBox');
+        const totalDays = document.getElementById('totalDays');
+        const leaveForm = document.getElementById('leaveForm');
+
+        
+        leaveType.addEventListener('change', function() {
+            if (this.value === 'sick') {
+                medicalCertWrapper.classList.remove('hidden');
+            </div> else {
+                medicalCertWrapper.classList.add('hidden');
+            }
+        });
+
+        
+        function calculateDays() {
+            if (startDate.value && endDate.value) {
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+                
+               
+                if (end < start) {
+                    alert("วันที่สิ้นสุดต้องไม่ก่อนหน้าวันที่เริ่มต้น");
+                    endDate.value = "";
+                    daysCountBox.classList.add('hidden');
+                    return;
+                }
+
+              
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                
+                totalDays.textContent = diffDays;
+                daysCountBox.classList.remove('hidden');
+            }
+        }
+
+        startDate.addEventListener('change', calculateDays);
+        endDate.addEventListener('change', calculateDays);
+
+        
+        leaveForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // ป้องกันหน้าเว็บรีเฟรชตัวเอง
+            
+            
+            alert(`🎉 ส่งใบคำขอลางานสำเร็จ!\nประเภทการลา: ${leaveType.value}\nจำนวน: ${totalDays.textContent} วัน\nสถานะปัจจุบัน: รออนุมัติ (Pending)`);
+            
+            leaveForm.reset();
+            daysCountBox.classList.add('hidden');
+            medicalCertWrapper.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
